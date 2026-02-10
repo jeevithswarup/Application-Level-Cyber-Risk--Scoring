@@ -45,4 +45,5 @@ def login_view(request):
 
     return Response({'message':'Login Successful'})
 
-
+def home(request):
+    return render(request,'login.html')
