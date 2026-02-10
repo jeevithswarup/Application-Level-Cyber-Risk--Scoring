@@ -17,3 +17,5 @@ class UserSerializer(serializers.ModelSerializer):
             'last_device',
         ]
         read_only_fields = ['risk_score', 'last_ip', 'last_device']
+
+        
