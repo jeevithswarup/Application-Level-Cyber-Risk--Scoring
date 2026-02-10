@@ -1,15 +1,20 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>Secure Login</title>
+    {% load static %}
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
 </head>
 <body>
 
-<div class="auth-container">
-    <h2>User Login</h2>
+<div class="auth-wrapper">
+
+    <div class="auth-header">
+        <h2>Secure User Login</h2>
+        <p>Application-Level Cyber Risk Scoring System</p>
+        <span class="security-badge">Monitored & Risk-Assessed Access</span>
+    </div>
 
     <form method="POST">
         {% csrf_token %}
@@ -24,13 +29,20 @@
             <input type="password" name="password" required>
         </div>
 
-        <button type="submit" class="btn">Login</button>
+        <button type="submit" class="btn-login">Login Securely</button>
     </form>
 
-    <div class="auth-footer">
-        Don’t have an account?
-        <a href="#register">Register</a>
+    <div class="security-note">
+        ⚠️ This system continuously monitors login behavior, device information,
+        and session activity to calculate a real-time cyber risk score.
+        Suspicious access may be restricted automatically.
     </div>
+
+    <div class="auth-footer">
+        New user?
+        <a href="#register">Create an account</a>
+    </div>
+
 </div>
 
 </body>
