@@ -4,15 +4,14 @@
     box-sizing: border-box;
     font-family: "Segoe UI", Arial, sans-serif;
 }
-
 body {
     height: 100vh;
-    background: 
+    background:
         linear-gradient(
-            rgba(244, 246, 249, 0.9),
-            rgba(244, 246, 249, 0.9)
+            rgba(255, 255, 255, 0.6),
+            rgba(255, 255, 255, 0.)
         ),
-        url("https://stock.adobe.com/search?k=login+background");
+        url("../assests/Untitled_design.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -20,7 +19,9 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding-right: 120px;
 }
+
 
 .auth-wrapper {
     background: #ffffff;

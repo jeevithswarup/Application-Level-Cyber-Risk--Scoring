@@ -1,14 +1,20 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Register</title>
+    <title>Secure Registration</title>
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
 </head>
 <body>
 
-<div class="auth-container">
-    <h2>User Registration</h2>
+<div class="auth-wrapper">
+
+    <div class="auth-header">
+        <h2>Create Secure Account</h2>
+        <p>Application-Level Cyber Risk Scoring System</p>
+        <span class="security-badge">Secure & Monitored Registration</span>
+    </div>
 
     <form method="POST">
         {% csrf_token %}
@@ -19,7 +25,7 @@
         </div>
 
         <div class="form-group">
-            <label>Email</label>
+            <label>Email Address</label>
             <input type="email" name="email" required>
         </div>
 
@@ -33,13 +39,21 @@
             <input type="password" name="confirm_password" required>
         </div>
 
-        <button type="submit" class="btn">Register</button>
+        <button type="submit" class="btn-login">
+            Register Securely
+        </button>
     </form>
+
+    <div class="security-note">
+        ⚠️ Registration activity is monitored to prevent unauthorized access
+        and ensure account integrity.
+    </div>
 
     <div class="auth-footer">
         Already have an account?
-        <a href="{% url 'login' %}">Login</a>
+        <a href="#login">Login</a>
     </div>
+
 </div>
 
 </body>

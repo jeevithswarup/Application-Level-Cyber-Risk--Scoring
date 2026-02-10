@@ -9,18 +9,20 @@ from .models import UserProfile
 def Register(request):
     username=request.data.get('username')
     password=request.data.get('password')
+    confirm_password=request.data.get('confirm_password')
     email=request.data.get('email')
 
     if UserProfile.objects.filter(username=username).exists():
         return Response({'error':'Username already exists'},status=400)
     
-    user=UserProfile.objects.create_user(
+    if(password==confirm_password):
+     user=UserProfile.objects.create_user(
         username=username,
         password=password,
         email=email,
-    )
-
-    return Response({'message':'User is sucessfully Created'})
+     )
+     return Response({'message':'User is sucessfully Created'})
+    return Response({'error':'password did not match'},status=400)
 
 
 @api_view(['POST'])
@@ -46,4 +48,4 @@ def login_view(request):
     return Response({'message':'Login Successful'})
 
 def home(request):
-    return render(request,'login.html')
+    return render(request,'register.html')
