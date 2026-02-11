@@ -4,7 +4,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import UserProfile
 from django.contrib import messages
-
+from .models import LoginActivity
+from .utils import get_client_ip, get_device_info
 
 def Register(request):
 
@@ -40,19 +41,38 @@ def login_view(request):
         
         user=authenticate(username=username,password=password)
 
+        ip = get_client_ip(request)
+        device = get_device_info(request)
+
         if user is None:
-            messages.error(request, "Invalid Credentials.")
-            return render(request,'login.html')
+          LoginActivity.objects.create( username_attempted=username,ip_address=ip,device_info=device,status='FAILED')
+
+          messages.error(request, "Invalid Credentials.")
+          return render(request,'login.html')
         
         if user.account_status =='blocked':
+            LoginActivity.objects.create(
+                user=user,
+                username_attempted=username,
+                ip_address=ip,
+                device_info=device,
+                status='FAILED'
+            )
             messages.error(request, "Account is Blocked.")
             return render(request,'login.html',status=403)
         
-        user.last_ip=request.META.get('REMOTE ADDRESS')
-        user.last_device=request.META.get('HTTP_USER_AGENT')
+        user.last_ip = ip
+        user.last_device = device
         user.save()
 
         login(request,user)
+        LoginActivity.objects.create(
+            user=user,
+            username_attempted=username,
+            ip_address=ip,
+            device_info=device,
+            status='SUCCESS'
+        )
         messages.success(request, "Login Successful")
    return render(request,'login.html')
 
