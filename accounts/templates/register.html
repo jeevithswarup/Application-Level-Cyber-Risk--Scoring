@@ -16,7 +16,7 @@
         <span class="security-badge">Secure & Monitored Registration</span>
     </div>
 
-    <form method="POST">
+    <form method="POST" action="{% url 'Register'%}">
         {% csrf_token %}
 
         <div class="form-group">
@@ -51,7 +51,7 @@
 
     <div class="auth-footer">
         Already have an account?
-        <a href="#login">Login</a>
+        <a href="{% url 'login' %}">Login</a>
     </div>
 
 </div>
