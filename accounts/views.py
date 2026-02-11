@@ -3,30 +3,32 @@ from django.contrib.auth import authenticate,login
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import UserProfile
+from django.contrib import messages
 
 
 def Register(request):
 
   if request.method=='POST':
-    username=request.data.get('username')
-    password=request.data.get('password')
-    confirm_password=request.data.get('confirm_password')
-    email=request.data.get('email')
+    username=request.POST.get('username')
+    password=request.POST.get('password')
+    confirm_password=request.POST.get('confirm_password')
+    email=request.POST.get('email')
 
     if UserProfile.objects.filter(username=username).exists():
-        return render(request,'register.html',{'error':'Username already exists'},status=400)
+        messages.error(request, "Username already exists.")
+        return render(request,'register.html')
     
     if password!=confirm_password:
-      return render(request,'register.html',
-            {'error': 'Password do not match'},
-            status=400 )
+      messages.error(request, 'Password do not match')
+      return render(request,'register.html')
 
     user=UserProfile.objects.create_user(
         username=username,
         password=password,
         email=email,
      )
-    return redirect(request,'login.html',{'message':'User is sucessfully Created'},status=201)
+    messages.success(request, "Account created successfully.")
+    return redirect(request,'login.html')
   return render(request,'register.html')
   
 

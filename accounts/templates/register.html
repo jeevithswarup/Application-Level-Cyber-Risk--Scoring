@@ -15,6 +15,19 @@
         <p>Application-Level Cyber Risk Scoring System</p>
         <span class="security-badge">Secure & Monitored Registration</span>
     </div>
+       {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                <div class="alert 
+                    {% if message.tags == 'error' %}alert-error
+                    {% elif message.tags == 'success' %}alert-success
+                    {% else %}alert-info{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
 
     <form method="POST" action="{% url 'Register'%}">
         {% csrf_token %}
