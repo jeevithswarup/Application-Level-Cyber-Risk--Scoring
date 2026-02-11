@@ -28,28 +28,31 @@ def Register(request):
         email=email,
      )
     messages.success(request, "Account created successfully.")
-    return redirect(request,'login.html')
+    return redirect('login')
   return render(request,'register.html')
   
 
-@api_view(['POST'])
+
 def login_view(request):
-    username=request.data.get('username')
-    password=request.data.get('password')
-     
-    user=authenticate(username=username,password=password)
+   if  request.method=='POST':
+        username=request.POST.get('username')
+        password=request.POST.get('password')
+        
+        user=authenticate(username=username,password=password)
 
-    if user is None:
-        return render(request,'login.html',{'error':'Invalid Credentials'},status=401)
-    
-    if user.account_status =='blocked':
-        return render(request,'register.html',{'error':'Account is Blocked'},status=403)
-    
-    user.last_ip=request.META.get('REMOTE ADDRESS')
-    user.last_device=request.META.get('HTTP_USER_AGENT')
-    user.save()
+        if user is None:
+            messages.error(request, "Invalid Credentials.")
+            return render(request,'login.html')
+        
+        if user.account_status =='blocked':
+            messages.error(request, "Account is Blocked.")
+            return render(request,'login.html',status=403)
+        
+        user.last_ip=request.META.get('REMOTE ADDRESS')
+        user.last_device=request.META.get('HTTP_USER_AGENT')
+        user.save()
 
-    login(request,user)
-
-    return render(request,'login.html',{'message':'Login Successful'})
+        login(request,user)
+        messages.success(request, "Login Successful")
+   return render(request,'login.html')
 
