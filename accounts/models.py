@@ -18,7 +18,6 @@ class UserProfile(AbstractUser):
     last_ip = models.GenericIPAddressField(null=True,blank=True)
     last_device=models.TextField(null=True,blank=True)
     account_status=models.CharField(max_length=15,choices=STATUS_CHOICES,default='active')
-    timestamp = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
         return self.username
