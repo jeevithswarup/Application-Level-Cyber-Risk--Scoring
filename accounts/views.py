@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import UserProfile
 from django.contrib import messages
-from .models import LoginActivity
+from .models import LoginActivity,UserProfile
 from .utils import get_client_ip, get_device_info
 
 def Register(request):
@@ -73,6 +73,7 @@ def login_view(request):
             device_info=device,
             status='SUCCESS'
         )
+
         messages.success(request, "Login Successful")
    return render(request,'login.html')
 

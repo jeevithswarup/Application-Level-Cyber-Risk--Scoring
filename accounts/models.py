@@ -14,6 +14,8 @@ class UserProfile(AbstractUser):
     )
 
     role=models.CharField(max_length=10,choices=ROLE_CHOICES,default='user')
+
+    
     risk_score=models.IntegerField(default=0)
     last_ip = models.GenericIPAddressField(null=True,blank=True)
     last_device=models.TextField(null=True,blank=True)
