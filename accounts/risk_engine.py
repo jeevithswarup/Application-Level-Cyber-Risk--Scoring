@@ -14,7 +14,6 @@ def update_risk_score(user, points):
     user.save()
 
 
-# ✅ Risk Events
 
 def failed_login_risk(user):
     update_risk_score(user, 10)

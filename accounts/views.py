@@ -1,8 +1,10 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.shortcuts import render,redirect
+from django.contrib.auth import authenticate,login
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from .models import UserProfile
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from .models import UserProfile, LoginActivity
+from .models import LoginActivity,UserProfile
 from .utils import get_client_ip, get_device_info
 from .risk_engine import (
     failed_login_risk,
@@ -13,31 +15,29 @@ from .risk_engine import (
 
 def Register(request):
 
-    if request.method == 'POST':
+  if request.method=='POST':
+    username=request.POST.get('username')
+    password=request.POST.get('password')
+    confirm_password=request.POST.get('confirm_password')
+    email=request.POST.get('email')
 
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirm_password')
-        email = request.POST.get('email')
+    if UserProfile.objects.filter(username=username).exists():
+        messages.error(request, "Username already exists.")
+        return render(request,'register.html')
+    
+    if password!=confirm_password:
+      messages.error(request, 'Password do not match')
+      return render(request,'register.html')
 
-        if UserProfile.objects.filter(username=username).exists():
-            messages.error(request, "Username already exists.")
-            return render(request, 'register.html')
-
-        if password != confirm_password:
-            messages.error(request, 'Passwords do not match.')
-            return render(request, 'register.html')
-
-        UserProfile.objects.create_user(
-            username=username,
-            password=password,
-            email=email,
-        )
-
-        messages.success(request, "Account created successfully.")
-        return redirect('login')
-
-    return render(request, 'register.html')
+    user=UserProfile.objects.create_user(
+        username=username,
+        password=password,
+        email=email,
+     )
+    messages.success(request, "Account created successfully.")
+    return redirect('login')
+  return render(request,'register.html')
+  
 
 
 def login_view(request):
@@ -50,7 +50,7 @@ def login_view(request):
         ip = get_client_ip(request)
         device = get_device_info(request)
 
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(username=username, password=password)
 
         # ✅ FAILED LOGIN
         if user is None:
@@ -82,7 +82,7 @@ def login_view(request):
             )
 
             messages.error(request, "Account is Blocked.")
-            return render(request, 'login.html')
+            return render(request, 'login.html', status=403)
 
         # ✅ IP / DEVICE CHANGE DETECTION
         if user.last_ip and user.last_ip != ip:
@@ -101,7 +101,6 @@ def login_view(request):
 
         login(request, user)
 
-        # ✅ LOG SUCCESS
         LoginActivity.objects.create(
             user=user,
             username_attempted=username,
@@ -110,19 +109,6 @@ def login_view(request):
             status='SUCCESS',
         )
 
-        messages.success(request, "Login Successful.")
-        return redirect('dashboard')  
+        messages.success(request, "Login Successful")
 
     return render(request, 'login.html')
-
-
-@login_required
-def dashboard(request):
-
-    activities = LoginActivity.objects.filter(
-        username_attempted=request.user.username
-    ).order_by('-timestamp')[:10]
-
-    return render(request, 'dashboard.html', {
-        'activities': activities
-    })
