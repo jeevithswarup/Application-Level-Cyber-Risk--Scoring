@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
-
+from django.contrib.auth.decorators import login_required
 from .models import UserProfile, LoginActivity
 from .utils import get_client_ip, get_device_info
 from .risk_engine import (
@@ -111,6 +111,18 @@ def login_view(request):
         )
 
         messages.success(request, "Login Successful.")
-        # return redirect('dashboard')   # 🔥 IMPORTANT
+        return redirect('dashboard')  
 
     return render(request, 'login.html')
+
+
+@login_required
+def dashboard(request):
+
+    activities = LoginActivity.objects.filter(
+        username_attempted=request.user.username
+    ).order_by('-timestamp')[:10]
+
+    return render(request, 'dashboard.html', {
+        'activities': activities
+    })

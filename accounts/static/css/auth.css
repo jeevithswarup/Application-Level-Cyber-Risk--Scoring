@@ -145,3 +145,77 @@ body {
     color: #075985;
     border-left: 4px solid #0284c7;
 }
+.dashboard-wrapper {
+    width: 90%;
+    max-width: 1000px;
+    margin: auto;
+    padding: 30px;
+    color: white;
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.risk-card {
+    display: flex;
+    justify-content: space-between;
+    background: #111;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #222;
+}
+
+.score {
+    font-size: 42px;
+    font-weight: bold;
+    color: #ff4d4d;
+}
+
+.status {
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+.status.active { background: green; }
+.status.restricted { background: orange; }
+.status.blocked { background: red; }
+
+.meta-card,
+.activity-card {
+    background: #111;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #222;
+}
+
+.meta-grid {
+    display: flex;
+    justify-content: space-between;
+}
+
+.security-alert {
+    background: #2a1a1a;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #442;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #222;
+    text-align: left;
+}
+
+.SUCCESS { color: lightgreen; }
+.FAILED { color: red; }
