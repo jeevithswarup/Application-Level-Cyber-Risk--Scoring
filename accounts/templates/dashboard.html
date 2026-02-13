@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Security Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+</head>
+<body>
+
+<div class="dashboard-wrapper">
+
+    <div class="dashboard-header">
+        <h2>Security Dashboard</h2>
+        <p>Behavior-Aware Adaptive Cyber Risk Monitoring</p>
+    </div>
+
+    <!-- ✅ RISK SCORE CARD -->
+    <div class="risk-card">
+
+        <div class="risk-score">
+            <h3>Cyber Risk Score</h3>
+            <div class="score">{{ request.user.risk_score }}</div>
+        </div>
+
+        <div class="risk-status">
+            <h3>Account Status</h3>
+            <span class="status {{ request.user.account_status }}">
+                {{ request.user.account_status|upper }}
+            </span>
+        </div>
+
+    </div>
+
+    <!-- ✅ USER METADATA -->
+    <div class="meta-card">
+        <h3>Session Intelligence</h3>
+
+        <div class="meta-grid">
+            <div>
+                <label>Last Known IP</label>
+                <p>{{ request.user.last_ip }}</p>
+            </div>
+
+            <div>
+                <label>Last Known Device</label>
+                <p>{{ request.user.last_device }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ SECURITY NOTICE -->
+    <div class="security-alert">
+        ⚠️ This session is continuously evaluated using behavioral analytics.
+        Adaptive security controls may be applied automatically.
+    </div>
+
+    <!-- ✅ RECENT LOGIN ACTIVITY -->
+    <div class="activity-card">
+        <h3>Recent Login Activity</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>IP Address</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in activities %}
+                <tr>
+                    <td>{{ log.username_attempted }}</td>
+                    <td>{{ log.ip_address }}</td>
+                    <td class="{{ log.status }}">{{ log.status }}</td>
+                    <td>{{ log.timestamp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>
