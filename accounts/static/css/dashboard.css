@@ -29,7 +29,6 @@ display:grid;
 grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
 gap:20px;
 }   
-/* CARD */
 
 .card{
 background:#111827;
