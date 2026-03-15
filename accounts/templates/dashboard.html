@@ -1,12 +1,15 @@
 {% load static %}
 <!DOCTYPE html>
 <html>
+
 <head>
 
 <title>Security Dashboard</title>
 
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 
 <body>
@@ -30,15 +33,33 @@
 
 <p><b>Username:</b> {{ user.username }}</p>
 
-<p><b>Risk Score:</b> {{ user.risk_score }}</p>
+<p>
+<b>Risk Score:</b>
+<span id="riskScoreText">{{ user.risk_score }}</span>
+</p>
 
-<p><b>Account Status:</b> {{ user.account_status }}</p>
+{% if user.risk_score <= 30 %}
+<span class="status safe">Safe Session</span>
+{% elif user.risk_score <= 60 %}
+<span class="status warning">Medium Risk</span>
+{% else %}
+<span class="status danger">High Risk</span>
+{% endif %}
+
+<p>
+<b>Account Status:</b>
+<span id="accountStatus">{{ user.account_status }}</span>
+</p>
 
 <p><b>Last IP:</b> {{ user.last_ip }}</p>
 
-<p><b>Device:</b> {{ user.last_device }}</p>
+<p class="device"><b>Device:</b> {{ user.last_device }}</p>
 
 </div>
+
+
+<!-- RISK CHART -->
+
 <div class="card">
 
 <h3>Cyber Risk Score Analysis</h3>
@@ -47,11 +68,80 @@
 
 </div>
 
+
+<!-- SECURITY ALERTS -->
+
+<div class="card">
+
+<h3>Security Alerts</h3>
+
+{% if user.failed_attempts > 3 %}
+<p class="alert-danger">
+⚠ Multiple failed login attempts detected
+</p>
+{% endif %}
+
+{% if user.account_status == "restricted" %}
+<p class="alert-warning">
+⚠ Account currently under restricted mode
+</p>
+{% endif %}
+
+{% if user.account_status == "blocked" %}
+<p class="alert-danger">
+⛔ Account blocked due to high cyber risk
+</p>
+{% endif %}
+
+{% if user.risk_score < 30 %}
+<p class="alert-safe">
+✔ No security threats detected
+</p>
+{% endif %}
+
+</div>
+
+
+<!-- ATTACK DETECTION -->
+
+<div class="card">
+
+<h3>Attack Detection System</h3>
+
+{% if user.failed_attempts >= 3 %}
+<p class="alert-danger">
+🚨 Multiple Failed Login Attempts Detected
+</p>
+{% endif %}
+
+{% if user.risk_score > 60 %}
+<p class="alert-danger">
+⚠ High Cyber Risk Activity Detected
+</p>
+{% endif %}
+
+{% if user.last_ip != request.META.REMOTE_ADDR %}
+<p class="alert-warning">
+🌍 Suspicious IP Address Change Detected
+</p>
+{% endif %}
+
+{% if user.risk_score < 30 and user.failed_attempts == 0 %}
+<p class="alert-safe">
+🟢 System Behavior Normal
+</p>
+{% endif %}
+
+</div>
+
+
 <!-- LOGIN ACTIVITY -->
 
 <div class="card">
 
 <h3>Recent Login Activity</h3>
+
+<div class="table-wrapper">
 
 <table>
 
@@ -66,11 +156,13 @@
 
 <tr>
 
-<td>{{ log.status }}</td>
+<td class="{% if log.status == 'SUCCESS' %}success{% else %}failed{% endif %}">
+{{ log.status }}
+</td>
 
 <td>{{ log.ip_address }}</td>
 
-<td>{{ log.device_info }}</td>
+<td class="device">{{ log.device_info }}</td>
 
 <td>{{ log.timestamp }}</td>
 
@@ -82,12 +174,16 @@
 
 </div>
 
+</div>
+
 
 <!-- BEHAVIOR LOG -->
 
 <div class="card">
 
 <h3>Recent Behavior Activity</h3>
+
+<div class="table-wrapper">
 
 <table>
 
@@ -116,9 +212,15 @@
 </div>
 
 </div>
+
+</div>
+
+
+<!-- CHART + LIVE RISK MONITORING -->
+
 <script>
 
-const riskScore = {{ risk_score }};
+let riskScore = {{ risk_score }};
 
 const ctx = document.getElementById('riskChart').getContext('2d');
 
@@ -131,11 +233,14 @@ data: {
 labels: ['Risk Score', 'Safe Level'],
 
 datasets: [{
+
 data: [riskScore, 100-riskScore],
+
 backgroundColor: [
 '#ef4444',
 '#22c55e'
 ]
+
 }]
 
 },
@@ -156,6 +261,36 @@ color:'white'
 
 });
 
+
+/* LIVE RISK UPDATE */
+
+function updateRisk(){
+
+fetch("/risk-monitor/")
+
+.then(response => response.json())
+
+.then(data => {
+
+document.getElementById("riskScoreText").innerText = data.risk_score
+
+document.getElementById("accountStatus").innerText = data.account_status
+
+riskChart.data.datasets[0].data = [
+data.risk_score,
+100-data.risk_score
+]
+
+riskChart.update()
+
+})
+
+}
+
+setInterval(updateRisk,5000)
+
 </script>
+
+
 </body>
 </html>

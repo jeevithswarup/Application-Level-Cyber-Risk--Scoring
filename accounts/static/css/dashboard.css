@@ -10,34 +10,111 @@ color:white;
 .navbar{
 display:flex;
 justify-content:space-between;
+align-items:center;
 padding:20px;
 background:#111827;
+box-shadow:0 4px 10px rgba(0,0,0,0.6);
 }
 
 .logout-btn{
 background:#dc2626;
-padding:8px 15px;
+padding:10px 16px;
 color:white;
 text-decoration:none;
-border-radius:5px;
+border-radius:6px;
+font-weight:bold;
+transition:0.3s;
 }
+
+.logout-btn:hover{
+background:#b91c1c;
+}
+
 
 /* DASHBOARD */
 
 .dashboard{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+grid-template-columns:repeat(auto-fit,minmax(340px,1fr));
 gap:20px;
-}   
+padding:20px;
+}
+
+
+/* CARD */
 
 .card{
 background:#111827;
 padding:20px;
 border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.5);
+box-shadow:0 0 15px rgba(0,0,0,0.6);
+transition:0.2s;
 }
 
+.card:hover{
+transform:translateY(-3px);
+}
+
+.card h3{
+margin-top:0;
+color:#38bdf8;
+}
+
+
+/* RISK STATUS */
+
+.status{
+display:inline-block;
+margin:8px 0;
+padding:5px 12px;
+border-radius:6px;
+font-size:14px;
+font-weight:bold;
+}
+
+.safe{
+background:#16a34a;
+}
+
+.warning{
+background:#f59e0b;
+}
+
+.danger{
+background:#dc2626;
+}
+
+
+/* ALERTS */
+
+.alert-danger{
+background:#7f1d1d;
+padding:10px;
+border-radius:6px;
+margin-top:10px;
+}
+
+.alert-warning{
+background:#92400e;
+padding:10px;
+border-radius:6px;
+margin-top:10px;
+}
+
+.alert-safe{
+background:#065f46;
+padding:10px;
+border-radius:6px;
+margin-top:10px;
+}
+
+
 /* TABLE */
+
+.table-wrapper{
+max-height:250px;
+overflow-y:auto;
+}
 
 table{
 width:100%;
@@ -49,8 +126,47 @@ th,td{
 padding:8px;
 border-bottom:1px solid #374151;
 text-align:left;
+font-size:14px;
 }
 
 th{
 color:#38bdf8;
+}
+
+.success{
+color:#22c55e;
+font-weight:bold;
+}
+
+.failed{
+color:#ef4444;
+font-weight:bold;
+}
+
+/* DEVICE TEXT FIX */
+
+.device{
+word-break:break-word;
+font-size:13px;
+color:#d1d5db;
+}
+.alert-danger{
+background:#7f1d1d;
+padding:10px;
+border-radius:6px;
+margin-top:10px;
+}
+
+.alert-warning{
+background:#92400e;
+padding:10px;
+border-radius:6px;
+margin-top:10px;
+}
+
+.alert-safe{
+background:#065f46;
+padding:10px;
+border-radius:6px;
+margin-top:10px;
 }

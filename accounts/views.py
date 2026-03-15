@@ -1,4 +1,5 @@
 from django.shortcuts import render,redirect
+from django.http import JsonResponse
 from django.contrib.auth import authenticate,login, logout
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -146,3 +147,21 @@ def dashboard(request):
     }
 
     return render(request, "dashboard.html", context)
+
+
+def risk_monitor_api(request):
+
+    user = request.user
+
+    data = {
+
+        "risk_score": user.risk_score,
+        "account_status": user.account_status,
+
+        "failed_attempts": user.failed_attempts,
+
+        "last_ip": user.last_ip,
+
+    }
+
+    return JsonResponse(data)
