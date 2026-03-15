@@ -56,3 +56,19 @@ class LoginActivity(models.Model):
     
 
         
+from django.contrib.auth.models import User
+from django.db import models
+
+
+class BehaviorLog(models.Model):
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  
+    
+    path = models.CharField(max_length=200)
+
+    ip_address = models.GenericIPAddressField()
+
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.path}"

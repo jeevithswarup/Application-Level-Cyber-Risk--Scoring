@@ -1,3 +1,4 @@
+from .security_controller import apply_security_action
 MAX_RISK_SCORE = 100
 MIN_RISK_SCORE = 0
 
@@ -12,7 +13,7 @@ def update_risk_score(user, points):
         user.risk_score = MIN_RISK_SCORE
 
     user.save()
-
+    apply_security_action(user)
 
 
 def failed_login_risk(user):
