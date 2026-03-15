@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Security Dashboard</title>
+
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="navbar">
+
+<h2>BACRSS Security Dashboard</h2>
+
+<a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+
+</div>
+
+
+<div class="dashboard">
+
+<!-- USER INFO -->
+
+<div class="card">
+
+<h3>User Information</h3>
+
+<p><b>Username:</b> {{ user.username }}</p>
+
+<p><b>Risk Score:</b> {{ user.risk_score }}</p>
+
+<p><b>Account Status:</b> {{ user.account_status }}</p>
+
+<p><b>Last IP:</b> {{ user.last_ip }}</p>
+
+<p><b>Device:</b> {{ user.last_device }}</p>
+
+</div>
+<div class="card">
+
+<h3>Cyber Risk Score Analysis</h3>
+
+<canvas id="riskChart"></canvas>
+
+</div>
+
+<!-- LOGIN ACTIVITY -->
+
+<div class="card">
+
+<h3>Recent Login Activity</h3>
+
+<table>
+
+<tr>
+<th>Status</th>
+<th>IP</th>
+<th>Device</th>
+<th>Time</th>
+</tr>
+
+{% for log in login_logs %}
+
+<tr>
+
+<td>{{ log.status }}</td>
+
+<td>{{ log.ip_address }}</td>
+
+<td>{{ log.device_info }}</td>
+
+<td>{{ log.timestamp }}</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+
+<!-- BEHAVIOR LOG -->
+
+<div class="card">
+
+<h3>Recent Behavior Activity</h3>
+
+<table>
+
+<tr>
+<th>Page</th>
+<th>IP</th>
+<th>Time</th>
+</tr>
+
+{% for log in behavior_logs %}
+
+<tr>
+
+<td>{{ log.path }}</td>
+
+<td>{{ log.ip_address }}</td>
+
+<td>{{ log.timestamp }}</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+</div>
+<script>
+
+const riskScore = {{ risk_score }};
+
+const ctx = document.getElementById('riskChart').getContext('2d');
+
+const riskChart = new Chart(ctx, {
+
+type: 'doughnut',
+
+data: {
+
+labels: ['Risk Score', 'Safe Level'],
+
+datasets: [{
+data: [riskScore, 100-riskScore],
+backgroundColor: [
+'#ef4444',
+'#22c55e'
+]
+}]
+
+},
+
+options: {
+
+plugins: {
+
+legend: {
+labels:{
+color:'white'
+}
+}
+
+}
+
+}
+
+});
+
+</script>
+</body>
+</html>

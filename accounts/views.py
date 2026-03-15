@@ -1,10 +1,13 @@
 from django.shortcuts import render,redirect
-from django.contrib.auth import authenticate,login
+from django.contrib.auth import authenticate,login, logout
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import UserProfile
 from django.contrib import messages
-from .models import LoginActivity,UserProfile
+from .models import LoginActivity,UserProfile,BehaviorLog
+from django.contrib.auth.decorators import login_required
+
+
 from .utils import get_client_ip, get_device_info
 from .risk_engine import (
     failed_login_risk,
@@ -12,6 +15,12 @@ from .risk_engine import (
     normal_behavior_reward
 )
 
+
+def logout_view(request):
+
+    logout(request)
+
+    return redirect('login')
 
 def Register(request):
 
@@ -112,3 +121,28 @@ def login_view(request):
         messages.success(request, "Login Successful")
 
     return render(request, 'login.html')
+
+
+
+
+
+
+@login_required
+def dashboard(request):
+
+    user = request.user
+
+    login_logs = LoginActivity.objects.filter(user=user).order_by('-timestamp')[:10]
+    behavior_logs = BehaviorLog.objects.filter(user=user).order_by('-timestamp')[:10]
+
+    # Risk score data for chart
+    risk_score = user.risk_score
+
+    context = {
+        "user": user,
+        "login_logs": login_logs,
+        "behavior_logs": behavior_logs,
+        "risk_score": risk_score
+    }
+
+    return render(request, "dashboard.html", context)
