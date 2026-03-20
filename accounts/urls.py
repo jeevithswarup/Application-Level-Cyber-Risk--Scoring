@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path,include
 from .views import *
 
 urlpatterns = [
@@ -7,5 +7,6 @@ urlpatterns = [
      path('logout/',logout_view,name='logout'),
      path('dashboard/', dashboard, name='dashboard'),
      path('risk-monitor/', risk_monitor_api, name='risk_monitor'),
+     path('otp/', otp_verify, name='otp_verify'),
      
 ]
