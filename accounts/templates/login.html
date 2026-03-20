@@ -14,6 +14,7 @@
 
 <div class="container">
 
+<!-- LEFT PANEL -->
 <div class="left-panel">
 
 <h1>BACRSS</h1>
@@ -29,39 +30,55 @@
 
 </div>
 
-
+<!-- RIGHT PANEL -->
 <div class="right-panel">
 
 <div class="card">
 
 <h2>Secure Login</h2>
 
+<!-- MESSAGES -->
 {% if messages %}
-{% for message in messages %}
-<div class="alert {{ message.tags }}">
-{{ message }}
-</div>
-{% endfor %}
+    {% for message in messages %}
+        <div class="alert {{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
 {% endif %}
 
-<form method="POST" action="{% url 'login' %}">
+<!-- SINGLE FORM -->
+<form method="POST">
 {% csrf_token %}
 
+<!-- USERNAME -->
 <label>Username</label>
 <input type="text" name="username" placeholder="Enter Username" required>
 
+<!-- PASSWORD -->
 <label>Password</label>
-<input type="password" id="password" name="password" placeholder="Enter Password" required>
+<input type="password" name="password" placeholder="Enter Password" required>
 
-<button type="submit">Login Securely</button>
-
-</form>
+<!-- CAPTCHA -->
 {% if show_captcha %}
 <div class="form-group">
     <label>Solve: {{ num1 }} + {{ num2 }}</label>
-    <input type="text" name="captcha" required>
+    <input type="text" name="captcha" placeholder="Enter Answer" required>
 </div>
 {% endif %}
+
+<!-- OTP -->
+{% if show_otp %}
+<div class="form-group">
+    <label>Enter OTP</label>
+    <input type="text" name="otp" placeholder="Enter OTP" required>
+</div>
+{% endif %}
+
+<!-- SUBMIT -->
+<button type="submit">Login Securely</button>
+
+</form>
+
 <p class="footer">
 New user? <a href="{% url 'register' %}">Create account</a>
 </p>
