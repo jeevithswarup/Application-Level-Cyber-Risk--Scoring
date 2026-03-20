@@ -56,7 +56,12 @@
 <button type="submit">Login Securely</button>
 
 </form>
-
+{% if show_captcha %}
+<div class="form-group">
+    <label>Verify CAPTCHA</label>
+    {{ captcha_form }}
+</div>
+{% endif %}
 <p class="footer">
 New user? <a href="{% url 'register' %}">Create account</a>
 </p>
