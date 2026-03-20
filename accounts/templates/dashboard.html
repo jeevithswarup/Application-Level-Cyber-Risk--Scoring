@@ -3,11 +3,9 @@
 <html>
 
 <head>
-
 <title>Security Dashboard</title>
 
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
@@ -15,18 +13,13 @@
 <body>
 
 <div class="navbar">
-
-<h2>BACRSS Security Dashboard</h2>
-
-<a href="{% url 'logout' %}" class="logout-btn">Logout</a>
-
+    <h2>BACRSS Security Dashboard</h2>
+    <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
 </div>
-
 
 <div class="dashboard">
 
 <!-- USER INFO -->
-
 <div class="card">
 
 <h3>User Information</h3>
@@ -52,91 +45,67 @@
 </p>
 
 <p><b>Last IP:</b> {{ user.last_ip }}</p>
-
 <p class="device"><b>Device:</b> {{ user.last_device }}</p>
 
 </div>
 
 
 <!-- RISK CHART -->
-
 <div class="card">
-
 <h3>Cyber Risk Score Analysis</h3>
-
 <canvas id="riskChart"></canvas>
-
 </div>
 
 
 <!-- SECURITY ALERTS -->
-
 <div class="card">
 
 <h3>Security Alerts</h3>
 
 {% if user.failed_attempts > 3 %}
-<p class="alert-danger">
-⚠ Multiple failed login attempts detected
-</p>
+<p class="alert-danger">⚠ Multiple failed login attempts detected</p>
 {% endif %}
 
 {% if user.account_status == "restricted" %}
-<p class="alert-warning">
-⚠ Account currently under restricted mode
-</p>
+<p class="alert-warning">⚠ Account currently under restricted mode</p>
 {% endif %}
 
 {% if user.account_status == "blocked" %}
-<p class="alert-danger">
-⛔ Account blocked due to high cyber risk
-</p>
+<p class="alert-danger">⛔ Account blocked due to high cyber risk</p>
 {% endif %}
 
 {% if user.risk_score < 30 %}
-<p class="alert-safe">
-✔ No security threats detected
-</p>
+<p class="alert-safe">✔ No security threats detected</p>
 {% endif %}
 
 </div>
 
 
 <!-- ATTACK DETECTION -->
-
 <div class="card">
 
 <h3>Attack Detection System</h3>
 
 {% if user.failed_attempts >= 3 %}
-<p class="alert-danger">
-🚨 Multiple Failed Login Attempts Detected
-</p>
+<p class="alert-danger">🚨 Multiple Failed Login Attempts Detected</p>
 {% endif %}
 
 {% if user.risk_score > 60 %}
-<p class="alert-danger">
-⚠ High Cyber Risk Activity Detected
-</p>
+<p class="alert-danger">⚠ High Cyber Risk Activity Detected</p>
 {% endif %}
 
 {% if user.last_ip != request.META.REMOTE_ADDR %}
-<p class="alert-warning">
-🌍 Suspicious IP Address Change Detected
-</p>
+<p class="alert-warning">🌍 Suspicious IP Address Change Detected</p>
 {% endif %}
 
 {% if user.risk_score < 30 and user.failed_attempts == 0 %}
-<p class="alert-safe">
-🟢 System Behavior Normal
-</p>
+<p class="alert-safe">🟢 System Behavior Normal</p>
 {% endif %}
 
 </div>
 
 
-<!-- LOGIN ACTIVITY -->
-
+<!-- LOGIN ACTIVITY WITH GEOLOCATION -->
 <div class="card">
 
 <h3>Recent Login Activity</h3>
@@ -148,6 +117,7 @@
 <tr>
 <th>Status</th>
 <th>IP</th>
+<th>Location</th>
 <th>Device</th>
 <th>Time</th>
 </tr>
@@ -161,6 +131,12 @@
 </td>
 
 <td>{{ log.ip_address }}</td>
+
+<td>
+<span class="location-badge">
+📍 {{ log.location }}
+</span>
+</td>
 
 <td class="device">{{ log.device_info }}</td>
 
@@ -178,7 +154,6 @@
 
 
 <!-- BEHAVIOR LOG -->
-
 <div class="card">
 
 <h3>Recent Behavior Activity</h3>
@@ -196,13 +171,9 @@
 {% for log in behavior_logs %}
 
 <tr>
-
 <td>{{ log.path }}</td>
-
 <td>{{ log.ip_address }}</td>
-
 <td>{{ log.timestamp }}</td>
-
 </tr>
 
 {% endfor %}
@@ -216,7 +187,7 @@
 </div>
 
 
-<!-- CHART + LIVE RISK MONITORING -->
+<!-- CHART + LIVE UPDATE -->
 
 <script>
 
@@ -225,55 +196,30 @@ let riskScore = {{ risk_score }};
 const ctx = document.getElementById('riskChart').getContext('2d');
 
 const riskChart = new Chart(ctx, {
-
 type: 'doughnut',
-
 data: {
-
 labels: ['Risk Score', 'Safe Level'],
-
 datasets: [{
-
 data: [riskScore, 100-riskScore],
-
-backgroundColor: [
-'#ef4444',
-'#22c55e'
-]
-
+backgroundColor: ['#ef4444', '#22c55e']
 }]
-
 },
-
 options: {
-
 plugins: {
-
 legend: {
-labels:{
-color:'white'
+labels:{ color:'white' }
 }
 }
-
 }
-
-}
-
 });
 
 
-/* LIVE RISK UPDATE */
-
 function updateRisk(){
-
 fetch("/risk-monitor/")
-
 .then(response => response.json())
-
 .then(data => {
 
 document.getElementById("riskScoreText").innerText = data.risk_score
-
 document.getElementById("accountStatus").innerText = data.account_status
 
 riskChart.data.datasets[0].data = [
@@ -284,13 +230,11 @@ data.risk_score,
 riskChart.update()
 
 })
-
 }
 
 setInterval(updateRisk,5000)
 
 </script>
-
 
 </body>
 </html>

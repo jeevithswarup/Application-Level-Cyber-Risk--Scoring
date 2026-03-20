@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
-
+from django.contrib.auth.models import User
 class UserProfile(AbstractUser):
     ROLE_CHOICES = (
         ('user', 'User'),
@@ -40,7 +40,7 @@ class LoginActivity(models.Model):
     )
 
     username_attempted = models.CharField(max_length=150)
-
+    location = models.CharField(max_length=255, null=True, blank=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
 
     device_info = models.TextField(null=True, blank=True)
@@ -56,8 +56,7 @@ class LoginActivity(models.Model):
     
 
         
-from django.contrib.auth.models import User
-from django.db import models
+
 
 
 class BehaviorLog(models.Model):

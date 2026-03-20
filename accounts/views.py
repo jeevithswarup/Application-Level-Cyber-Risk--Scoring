@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-
+from .utils import get_location_from_ip
 from .models import UserProfile, LoginActivity, BehaviorLog
 from .utils import get_client_ip, get_device_info
 from .risk_engine import (
@@ -55,51 +55,111 @@ def Register(request):
 
 # -------------------------
 # LOGIN (WITH CAPTCHA + OTP)
-# -------------------------
 def login_view(request):
 
     show_captcha = False
     show_otp = False
-    num1 = None
-    num2 = None
+
+    # Generate CAPTCHA numbers
+    if 'num1' not in request.session:
+        request.session['num1'] = random.randint(1, 9)
+        request.session['num2'] = random.randint(1, 9)
+
+    num1 = request.session['num1']
+    num2 = request.session['num2']
 
     if request.method == 'POST':
 
         username = request.POST.get('username')
         password = request.POST.get('password')
+        entered_captcha = request.POST.get('captcha')
+        entered_otp = request.POST.get('otp')
 
         ip = get_client_ip(request)
         device = get_device_info(request)
 
         existing_user = UserProfile.objects.filter(username=username).first()
 
-        # ---------------- CAPTCHA ----------------
-        if existing_user and (existing_user.failed_attempts >= 3 or existing_user.risk_score > 30):
+        # ---------------- PRIORITY LOGIC ----------------
 
-            show_captcha = True
+        if existing_user:
 
-            user_answer = request.POST.get("captcha")
+            # 🔴 BLOCK
+            if existing_user.risk_score > 80:
+                existing_user.account_status = "blocked"
+                existing_user.save()
+                messages.error(request, "Account Blocked due to high risk")
+                return render(request, 'login.html')
 
-            try:
-                if int(user_answer) != request.session.get('captcha_answer'):
-                    raise ValueError
-            except:
+            # 🔐 OTP
+            if existing_user.risk_score > 60:
+                show_otp = True
+
+            # 🧠 CAPTCHA
+            elif existing_user.failed_attempts >= 3:
+                show_captcha = True
+
+        # ---------------- CAPTCHA VALIDATION ----------------
+
+        if show_captcha:
+            correct_answer = num1 + num2
+
+            if not entered_captcha or int(entered_captcha) != correct_answer:
                 messages.error(request, "Invalid CAPTCHA")
-
-                num1 = random.randint(1, 9)
-                num2 = random.randint(1, 9)
-                request.session['captcha_answer'] = num1 + num2
-
                 return render(request, 'login.html', {
                     "show_captcha": True,
                     "num1": num1,
                     "num2": num2
                 })
 
-        # ---------------- AUTH ----------------
+        # ---------------- OTP VALIDATION ----------------
+
+        if show_otp:
+
+            # First time → generate OTP
+            if not request.session.get('otp_required'):
+                otp = str(random.randint(100000, 999999))
+
+                request.session['otp'] = otp
+                request.session['otp_user'] = username
+                request.session['otp_required'] = True
+
+                print("OTP:", otp)
+
+                messages.warning(request, "Enter OTP to continue")
+
+                return render(request, 'login.html', {
+                    "show_otp": True,
+                    "num1": num1,
+                    "num2": num2
+                })
+
+            # Verify OTP
+            real_otp = request.session.get('otp')
+
+            if entered_otp == real_otp:
+
+                user = UserProfile.objects.get(username=username)
+                login(request, user)
+
+                request.session.flush()
+
+                return redirect('dashboard')
+
+            else:
+                messages.error(request, "Invalid OTP")
+                return render(request, 'login.html', {
+                    "show_otp": True,
+                    "num1": num1,
+                    "num2": num2
+                })
+
+        # ---------------- AUTHENTICATION ----------------
+
         user = authenticate(request, username=username, password=password)
 
         # ---------------- FAILED LOGIN ----------------
+
         if user is None:
 
             if existing_user:
@@ -108,20 +168,24 @@ def login_view(request):
 
                 if existing_user.failed_attempts >= 5:
                     existing_user.account_status = "restricted"
-                    existing_user.risk_score += 10
 
                 if existing_user.risk_score > 80:
                     existing_user.account_status = "blocked"
 
                 existing_user.save()
 
-            messages.error(request, "Invalid Credentials")
+            location = get_location_from_ip(ip)
 
-            # regenerate captcha
-            if show_captcha:
-                num1 = random.randint(1, 9)
-                num2 = random.randint(1, 9)
-                request.session['captcha_answer'] = num1 + num2
+            LoginActivity.objects.create(
+                user=user,
+                username_attempted=username,
+                ip_address=ip,
+                device_info=device,
+                location=location,
+                status='SUCCESS'
+            )
+
+            messages.error(request, "Invalid Credentials")
 
             return render(request, 'login.html', {
                 "show_captcha": show_captcha,
@@ -129,46 +193,8 @@ def login_view(request):
                 "num2": num2
             })
 
-        # ---------------- BLOCK ----------------
-        if user.account_status == 'blocked':
-            messages.error(request, "Account Blocked")
-            return render(request, 'login.html')
-
-        # ---------------- OTP FLOW ----------------
-        if user.risk_score > 60:
-
-            # check if OTP already sent
-            if not request.session.get("otp_sent"):
-
-                otp = str(random.randint(100000, 999999))
-                request.session['otp'] = otp
-                request.session['otp_user'] = user.username
-                request.session['otp_sent'] = True
-
-                print("OTP:", otp)
-
-                messages.warning(request, "Enter OTP to continue")
-
-            show_otp = True
-
-            entered_otp = request.POST.get("otp")
-
-            if entered_otp:
-
-                if entered_otp == request.session.get("otp"):
-
-                    login(request, user)
-                    request.session.flush()
-                    return redirect('dashboard')
-
-                else:
-                    messages.error(request, "Invalid OTP")
-
-            return render(request, 'login.html', {
-                "show_otp": True
-            })
-
         # ---------------- NORMAL LOGIN ----------------
+
         if user.last_ip and user.last_ip != ip:
             ip_device_change_risk(user)
 
@@ -184,14 +210,19 @@ def login_view(request):
 
         login(request, user)
 
+        LoginActivity.objects.create(
+            user=user,
+            username_attempted=username,
+            ip_address=ip,
+            device_info=device,
+            status='SUCCESS'
+        )
+
         return redirect('dashboard')
 
-    # -------- GET REQUEST --------
-    num1 = random.randint(1, 9)
-    num2 = random.randint(1, 9)
-    request.session['captcha_answer'] = num1 + num2
-
     return render(request, 'login.html', {
+        "show_captcha": show_captcha,
+        "show_otp": show_otp,
         "num1": num1,
         "num2": num2
     })
