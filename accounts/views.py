@@ -80,18 +80,22 @@ def login_view(request):
             user_answer = request.POST.get("captcha")
 
             if user_answer:
+             try:
                 if int(user_answer) != request.session.get('captcha_answer'):
+                  raise ValueError
+             except:
                     messages.error(request, "Invalid CAPTCHA")
 
                     num1 = random.randint(1, 9)
                     num2 = random.randint(1, 9)
+
                     request.session['captcha_answer'] = num1 + num2
 
                     return render(request, 'login.html', {
-                        "show_captcha": True,
-                        "num1": num1,
-                        "num2": num2
-                    })
+                    "show_captcha": show_captcha,
+                    "num1": num1,
+                    "num2": num2
+                })
 
         # ---------------- AUTHENTICATION ----------------
         user = authenticate(request, username=username, password=password)
